@@ -147,6 +147,30 @@ Workflow with Claude:
 4. Apply fixes and re-run CI
 5. Repeat until all tests pass
 
+## Roadmap
+
+### Completed
+- [x] Core CI runner with ec.exe integration
+- [x] Per-project environment variable configuration
+- [x] JSON and text report generation
+- [x] GitHub status tracking per project
+- [x] Windows command handling with `cmd /c` wrapper
+- [x] Working directory support (EIFGENs in correct location)
+- [x] Clean/incremental build modes
+- [x] Freeze/finalize compilation modes
+
+### Planned
+- [ ] Parallel builds (multiple projects simultaneously)
+- [ ] Test execution after successful build
+- [ ] Email/webhook notifications on failure
+- [ ] Build history tracking (SQLite database)
+- [ ] GitHub Actions integration
+- [ ] Build artifact management
+
+### Known Issues
+- Large projects may timeout on first clean build
+- Obsolete warnings counted but not detailed in report
+
 ## License
 
 MIT License - Copyright (c) 2025, Larry Rix
