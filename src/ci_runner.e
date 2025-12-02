@@ -277,13 +277,25 @@ feature {NONE} -- Implementation
 
 	build_command (a_project: CI_PROJECT; a_target: STRING_32): STRING_32
 			-- Build the ec.exe command for `a_target'.
+			-- Uses cmd /c with set commands for environment variables on Windows.
+		local
+			l_env_sets: STRING_32
 		do
 			create Result.make (500)
 
-			-- Add environment variable prefix
-			Result.append (a_project.env_vars_as_prefix)
+			-- Build environment variable SET commands
+			l_env_sets := env_vars_as_set_commands (a_project)
 
-			-- Add compiler path
+			-- Wrap in cmd /c with chained set commands
+			Result.append ("cmd /c %"")
+
+			-- Add SET commands for each env var (chained with &&)
+			if not l_env_sets.is_empty then
+				Result.append (l_env_sets)
+				Result.append (" && ")
+			end
+
+			-- Add compiler path (no quotes needed inside cmd /c)
 			Result.append ("%"")
 			Result.append (ec_path)
 			Result.append ("%" ")
@@ -305,6 +317,35 @@ feature {NONE} -- Implementation
 
 			if is_clean_build then
 				Result.append (" -clean")
+			end
+
+			-- Close the cmd /c quote
+			Result.append ("%"")
+		end
+
+	env_vars_as_set_commands (a_project: CI_PROJECT): STRING_32
+			-- Format environment variables as Windows SET commands.
+			-- Returns: set VAR1=value1 && set VAR2=value2
+		local
+			l_keys: ARRAY [STRING_32]
+			i: INTEGER
+			l_first: BOOLEAN
+		do
+			create Result.make (300)
+			l_keys := a_project.environment_variables.current_keys
+			l_first := True
+			from i := l_keys.lower until i > l_keys.upper loop
+				if not l_first then
+					Result.append (" && ")
+				end
+				Result.append ("set ")
+				Result.append (l_keys [i])
+				Result.append ("=")
+				if attached a_project.environment_variables.item (l_keys [i]) as l_val then
+					Result.append (l_val)
+				end
+				l_first := False
+				i := i + 1
 			end
 		end
 
