@@ -137,6 +137,25 @@ feature -- Element change
 
 feature -- Query
 
+	project_directory: STRING_32
+			-- Directory containing the ECF file.
+			-- This is where EIFGENs should be created.
+		local
+			l_last_sep: INTEGER
+		do
+			l_last_sep := ecf_path.last_index_of ('\', ecf_path.count)
+			if l_last_sep = 0 then
+				l_last_sep := ecf_path.last_index_of ('/', ecf_path.count)
+			end
+			if l_last_sep > 0 then
+				Result := ecf_path.substring (1, l_last_sep - 1)
+			else
+				create Result.make_from_string (ecf_path)
+			end
+		ensure
+			result_attached: Result /= Void
+		end
+
 	target_count: INTEGER
 			-- Number of targets
 		do
