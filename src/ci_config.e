@@ -60,7 +60,6 @@ feature -- Factory
 			-- simple_web (depends on several) - ON GITHUB
 			create l_project.make ("simple_web", "D:\prod\simple_web\simple_web.ecf")
 			l_project.add_target ("simple_web_tests")
-			l_project.add_env_var ("FRAMEWORK", "D:\prod\framework")
 			l_project.add_env_var ("SIMPLE_JSON", "D:\prod\simple_json")
 			l_project.add_env_var ("TESTING_EXT", "D:\prod\testing_ext")
 			l_project.add_env_var ("SIMPLE_SQL", "D:\prod\simple_sql")
@@ -116,7 +115,6 @@ feature -- Environment variable definitions
 			Result.put ("D:\prod\simple_web", "SIMPLE_WEB")
 			Result.put ("D:\prod\simple_ai_client", "SIMPLE_AI_CLIENT")
 			Result.put ("D:\prod\simple_randomizer", "SIMPLE_RANDOMIZER")
-			Result.put ("D:\prod\framework", "FRAMEWORK")
 		end
 
 note
