@@ -70,6 +70,15 @@
 			}
 		},
 		{
+			"name": "simple_htmx",
+			"ecf": "D:\\prod\\simple_htmx\\simple_htmx.ecf",
+			"test_target": "simple_htmx_tests",
+			"github": "D:\\prod\\simple_htmx",
+			"env_vars": {
+				"TESTING_EXT": "D:\\prod\\testing_ext"
+			}
+		},
+		{
 			"name": "simple_gui_designer",
 			"ecf": "D:\\prod\\simple_gui_designer\\simple_gui_designer.ecf",
 			"test_target": "simple_gui_designer_tests",
@@ -77,6 +86,7 @@
 			"env_vars": {
 				"SIMPLE_JSON": "D:\\prod\\simple_json",
 				"SIMPLE_WEB": "D:\\prod\\simple_web",
+				"SIMPLE_HTMX": "D:\\prod\\simple_htmx",
 				"TESTING_EXT": "D:\\prod\\testing_ext",
 				"SIMPLE_PROCESS": "D:\\prod\\simple_process",
 				"SIMPLE_SQL": "D:\\prod\\simple_sql",
