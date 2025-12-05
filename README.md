@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/ljr1981/claude_eiffel_op_docs/main/artwork/LOGO.png" alt="simple_ library logo" width="400">
+</p>
+
 # Simple CI
 
 A homebrew Continuous Integration tool for Eiffel projects. Built in-house for building, testing, and reporting on Eiffel project builds with zero external dependencies.
