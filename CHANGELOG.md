@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Testing config updates, AutoTest fixes, .gitignore cleanup
+- Add SCOOP concurrency capability
+- Add simple_htmx to CI, update gui_designer env vars
+- Refactor to use external JSON config file
+- Add roadmap and AI productivity documentation
+- Fix Windows env var handling with cmd /c wrapper
+- Fix: Run ec.exe in project directory
+- Remove framework dependency, add README
+- Update finalized EXE from EiffelStudio
+- Initial simple_ci - Homebrew CI for Eiffel projects
+
 ## [1.0.0] - 2025-12-08
 
 ### Added
