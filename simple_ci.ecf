@@ -28,4 +28,11 @@
 	<target name="simple_ci_finalize" extends="simple_ci_app">
 		<setting name="dead_code_removal" value="all"/>
 	</target>
+	<target name="simple_ci_tests" extends="simple_ci">
+		<root class="TEST_APP" feature="make"/>
+		<setting name="console_application" value="true"/>
+		<library name="simple_testing" location="$SIMPLE_TESTING\simple_testing.ecf"/>
+		<library name="testing" location="$ISE_LIBRARY\library\testing\testing.ecf"/>
+		<cluster name="tests" location=".\testing\"/>
+	</target>
 </system>

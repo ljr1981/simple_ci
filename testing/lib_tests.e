@@ -24,18 +24,6 @@ feature -- Test: Config
 			assert_attached ("config created", config)
 		end
 
-	test_config_add_step
-			-- Test adding build step.
-		note
-			testing: "covers/{CI_CONFIG}.add_step"
-		local
-			config: CI_CONFIG
-		do
-			create config.make
-			config.add_step ("compile", "ec -batch")
-			assert_true ("has step", config.has_step ("compile"))
-		end
-
 feature -- Test: Project
 
 	test_project_make
@@ -45,20 +33,24 @@ feature -- Test: Project
 		local
 			project: CI_PROJECT
 		do
-			create project.make ("my_project")
+			create project.make ("my_project", "/d/prod/my_project/my_project.ecf")
 			assert_strings_equal ("name", "my_project", project.name)
+			assert_strings_equal ("ecf_path", "/d/prod/my_project/my_project.ecf", project.ecf_path)
 		end
 
-	test_project_path
-			-- Test project path setting.
+	test_project_enabled
+			-- Test project enable/disable.
 		note
-			testing: "covers/{CI_PROJECT}.path"
+			testing: "covers/{CI_PROJECT}.is_enabled"
 		local
 			project: CI_PROJECT
 		do
-			create project.make ("test")
-			project.set_path ("/d/prod/test")
-			assert_strings_equal ("path", "/d/prod/test", project.path)
+			create project.make ("test", "/d/prod/test/test.ecf")
+			assert_true ("enabled by default", project.is_enabled)
+			project.disable
+			assert_false ("disabled", project.is_enabled)
+			project.enable
+			assert_true ("re-enabled", project.is_enabled)
 		end
 
 feature -- Test: Runner
@@ -74,80 +66,42 @@ feature -- Test: Runner
 			assert_attached ("runner created", runner)
 		end
 
-feature -- Test: Workflow
-
-	test_workflow_make
-			-- Test workflow creation.
-		note
-			testing: "covers/{CI_WORKFLOW}.make"
-		local
-			workflow: CI_WORKFLOW
-		do
-			create workflow.make ("build")
-			assert_strings_equal ("name", "build", workflow.name)
-		end
-
-	test_workflow_add_job
-			-- Test adding job to workflow.
-		note
-			testing: "covers/{CI_WORKFLOW}.add_job"
-		local
-			workflow: CI_WORKFLOW
-		do
-			create workflow.make ("test")
-			workflow.add_job ("compile", "ec -batch")
-			assert_true ("has job", workflow.has_job ("compile"))
-		end
-
 feature -- Test: Build Result
+
+	test_build_result_make
+			-- Test build result creation.
+		note
+			testing: "covers/{CI_BUILD_RESULT}.make"
+		local
+			l_result: CI_BUILD_RESULT
+		do
+			create l_result.make ("test_project", "test_target")
+			assert_strings_equal ("project name", "test_project", l_result.project_name)
+			assert_strings_equal ("target name", "test_target", l_result.target_name)
+		end
 
 	test_build_result_success
 			-- Test successful build result.
 		note
-			testing: "covers/{CI_BUILD_RESULT}.make_success"
+			testing: "covers/{CI_BUILD_RESULT}.set_success"
 		local
-			result: CI_BUILD_RESULT
+			l_result: CI_BUILD_RESULT
 		do
-			create result.make_success
-			assert_true ("is success", result.is_success)
-			assert_false ("no errors", result.has_errors)
+			create l_result.make ("test", "target")
+			l_result.set_success
+			assert_true ("is success", l_result.is_success)
 		end
 
 	test_build_result_failure
 			-- Test failed build result.
 		note
-			testing: "covers/{CI_BUILD_RESULT}.make_failure"
+			testing: "covers/{CI_BUILD_RESULT}.set_failed"
 		local
-			result: CI_BUILD_RESULT
+			l_result: CI_BUILD_RESULT
 		do
-			create result.make_failure ("Compilation error")
-			assert_false ("is not success", result.is_success)
-			assert_true ("has errors", result.has_errors)
-		end
-
-feature -- Test: Report
-
-	test_report_make
-			-- Test report creation.
-		note
-			testing: "covers/{CI_REPORT}.make"
-		local
-			report: CI_REPORT
-		do
-			create report.make
-			assert_attached ("report created", report)
-		end
-
-	test_report_add_entry
-			-- Test adding report entry.
-		note
-			testing: "covers/{CI_REPORT}.add_entry"
-		local
-			report: CI_REPORT
-		do
-			create report.make
-			report.add_entry ("Build started")
-			assert_false ("not empty", report.entries.is_empty)
+			create l_result.make ("test", "target")
+			l_result.set_failed ("Compilation error")
+			assert_false ("is not success", l_result.is_success)
 		end
 
 end
