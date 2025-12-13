@@ -98,7 +98,7 @@ feature {NONE} -- Implementation
 				l_file.close
 
 				create l_json
-				if attached l_json.parse (l_content) as l_value then
+				if attached l_json.load_config (l_content) as l_value then
 					if attached l_value.as_object as l_obj then
 						parse_config (l_obj)
 					else

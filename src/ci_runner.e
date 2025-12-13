@@ -229,7 +229,7 @@ feature -- Execution
 				print ("  Command: " + l_cmd + "%N")
 			end
 
-			l_output := process_helper.output_of_command (l_cmd, a_project.project_directory)
+			l_output := process_helper.run_and_capture (l_cmd, a_project.project_directory)
 			l_result.set_output (l_output)
 			l_result.mark_end
 
