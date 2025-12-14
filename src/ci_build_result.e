@@ -83,10 +83,10 @@ feature -- Access
 	warning_count: INTEGER
 			-- Number of warnings detected
 
-	start_time: DATE_TIME
+	start_time: SIMPLE_DATE_TIME
 			-- When build started
 
-	end_time: DATE_TIME
+	end_time: SIMPLE_DATE_TIME
 			-- When build ended
 
 feature -- Derived
@@ -94,7 +94,7 @@ feature -- Derived
 	duration_seconds: INTEGER_64
 			-- Build duration in seconds
 		do
-			Result := end_time.relative_duration (start_time).seconds_count
+			Result := end_time.to_timestamp - start_time.to_timestamp
 		end
 
 	duration_string: STRING_32

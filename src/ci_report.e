@@ -208,7 +208,7 @@ feature {NONE} -- Implementation
 	timestamp_string: STRING_32
 			-- Current timestamp as string.
 		local
-			l_dt: DATE_TIME
+			l_dt: SIMPLE_DATE_TIME
 		do
 			create l_dt.make_now
 			Result := l_dt.out
