@@ -1,24 +1,26 @@
-# EiffelStudio generated files
-/EIFGENs/
+# Eiffel build artifacts
+EIFGENs/
+Documentation/
 
-# Hidden files
-.*
-!.gitignore
-
-# Windows resource compiler files
-*.rc
-*.res
-
-# Log files
-*.log
-
-# Database files (local CI results)
-*.db
-*.sqlite
+# Compiled files
+*.melted
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.dylib
 
 # Backup files
-*~
+*.swp
 *.bak
+*~
 
 # IDE files
-*.user
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
