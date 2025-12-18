@@ -1,0 +1,152 @@
+# Simple Eiffel CI/CD Workflow
+#
+# This workflow compiles and tests Eiffel libraries using self-hosted runners
+# deployed on Kubernetes via simple_k8s.
+#
+# Usage: Copy this file to .github/workflows/eiffel-ci.yml in your library repo
+#
+# Prerequisites:
+# - Self-hosted runner with label 'eiffel' deployed to K8S
+# - EiffelStudio installed on runner
+# - SIMPLE_EIFFEL environment variable set
+
+name: Eiffel CI
+
+on:
+  push:
+    branches: [master, main, develop]
+  pull_request:
+    branches: [master, main]
+  workflow_dispatch:  # Manual trigger
+
+env:
+  # These are set on the self-hosted runner
+  ISE_EIFFEL: /opt/Eiffel_25.02
+  ISE_PLATFORM: linux-x86-64
+  SIMPLE_EIFFEL: /opt/simple_eiffel
+
+jobs:
+  compile-and-test:
+    name: Compile and Test
+    runs-on: [self-hosted, eiffel]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Verify EiffelStudio
+        run: |
+          echo "EiffelStudio version:"
+          ec -version
+          echo ""
+          echo "Environment:"
+          echo "  ISE_EIFFEL: ${ISE_EIFFEL}"
+          echo "  ISE_PLATFORM: ${ISE_PLATFORM}"
+          echo "  SIMPLE_EIFFEL: ${SIMPLE_EIFFEL}"
+
+      - name: Pre-compile C libraries (if present)
+        run: |
+          if [ -d "Clib" ]; then
+            echo "Compiling C code in Clib..."
+            cd Clib
+            for cfile in *.c; do
+              if [ -f "$cfile" ]; then
+                ofile="${cfile%.c}.o"
+                echo "  gcc -c -fPIC -o $ofile $cfile"
+                gcc -c -fPIC -o "$ofile" "$cfile" 2>&1 || true
+              fi
+            done
+          else
+            echo "No Clib directory, skipping C compilation"
+          fi
+
+      - name: Find ECF file
+        id: find-ecf
+        run: |
+          # Find the library ECF file (not test target)
+          ECF_FILE=$(ls -1 *.ecf 2>/dev/null | head -1)
+          if [ -z "$ECF_FILE" ]; then
+            echo "ERROR: No .ecf file found in repository root"
+            exit 1
+          fi
+          echo "ecf_file=${ECF_FILE}" >> $GITHUB_OUTPUT
+          echo "Found ECF: ${ECF_FILE}"
+
+          # Extract library name from ECF filename
+          LIB_NAME="${ECF_FILE%.ecf}"
+          echo "lib_name=${LIB_NAME}" >> $GITHUB_OUTPUT
+          echo "Library: ${LIB_NAME}"
+
+      - name: Clean previous build
+        run: |
+          rm -rf EIFGENs
+          echo "Cleaned EIFGENs directory"
+
+      - name: Compile library
+        run: |
+          echo "Compiling ${{ steps.find-ecf.outputs.lib_name }}..."
+          ec -batch \
+             -config "${{ steps.find-ecf.outputs.ecf_file }}" \
+             -target "${{ steps.find-ecf.outputs.lib_name }}_tests" \
+             -c_compile
+        timeout-minutes: 30
+
+      - name: Find test executable
+        id: find-exe
+        run: |
+          # Find the compiled executable
+          EXE_PATH=$(find EIFGENs -type f -executable -name "*.exe" 2>/dev/null | head -1)
+          if [ -z "$EXE_PATH" ]; then
+            # Linux executables don't have .exe extension
+            EXE_PATH=$(find EIFGENs -path "*/W_code/*" -type f -executable ! -name "*.o" ! -name "*.sh" 2>/dev/null | head -1)
+          fi
+
+          if [ -z "$EXE_PATH" ]; then
+            echo "ERROR: No executable found in EIFGENs"
+            exit 1
+          fi
+
+          echo "exe_path=${EXE_PATH}" >> $GITHUB_OUTPUT
+          echo "Found executable: ${EXE_PATH}"
+
+      - name: Run tests
+        run: |
+          echo "Running tests..."
+          echo "========================================"
+          "${{ steps.find-exe.outputs.exe_path }}"
+          TEST_EXIT_CODE=$?
+          echo "========================================"
+          echo "Test exit code: ${TEST_EXIT_CODE}"
+          exit ${TEST_EXIT_CODE}
+        timeout-minutes: 10
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ steps.find-ecf.outputs.lib_name }}
+          path: |
+            EIFGENs/**/W_code/*.log
+            test-results.txt
+          retention-days: 7
+          if-no-files-found: ignore
+
+  # Optional: Matrix build for multiple libraries (for mono-repo)
+  # matrix-build:
+  #   name: Build ${{ matrix.library }}
+  #   runs-on: [self-hosted, eiffel]
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       library:
+  #         - simple_base64
+  #         - simple_json
+  #         - simple_yaml
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - run: |
+  #         cd ${{ matrix.library }}
+  #         ec -batch -config *.ecf -target *_tests -c_compile
+  #         ./EIFGENs/*/W_code/*

@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eiffel-runner
+  namespace: github-runners
+  labels:
+    app: github-runner
+    language: eiffel
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: github-runner
+  template:
+    metadata:
+      labels:
+        app: github-runner
+        language: eiffel
+    spec:
+      containers:
+      - name: runner
+        image: simple-eiffel/eiffel-runner:latest
+        imagePullPolicy: Never
+        env:
+        - name: RUNNER_NAME_PREFIX
+          value: "eiffel-runner"
+        - name: ACCESS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: github-runner-secret
+              key: GITHUB_PAT
+        - name: ORG_NAME
+          valueFrom:
+            secretKeyRef:
+              name: github-runner-secret
+              key: GITHUB_OWNER
+        - name: RUNNER_SCOPE
+          value: "org"
+        - name: LABELS
+          value: "self-hosted,eiffel,linux,x64"
+        - name: RUNNER_WORKDIR
+          value: "/tmp/github-runner"
+        - name: DISABLE_AUTO_UPDATE
+          value: "true"
+        resources:
+          requests:
+            cpu: "1000m"
+            memory: "2Gi"
+          limits:
+            cpu: "4000m"
+            memory: "8Gi"
+        volumeMounts:
+        - name: runner-work
+          mountPath: /tmp/github-runner
+        - name: docker-sock
+          mountPath: /var/run/docker.sock
+      volumes:
+      - name: runner-work
+        emptyDir: {}
+      - name: docker-sock
+        hostPath:
+          path: /var/run/docker.sock
+          type: Socket
+      restartPolicy: Always

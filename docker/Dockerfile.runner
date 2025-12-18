@@ -1,0 +1,35 @@
+# EiffelStudio GitHub Actions Runner
+# Combines myoung34/github-runner with EiffelStudio from eiffel/eiffel
+
+FROM eiffel/eiffel:latest AS eiffel-source
+
+FROM myoung34/github-runner:latest
+
+# Copy EiffelStudio from eiffel image
+COPY --from=eiffel-source /usr/local/eiffel /usr/local/eiffel
+
+# Install build dependencies and GTK (required by EiffelStudio)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    gcc \
+    g++ \
+    make \
+    zlib1g-dev \
+    libcurl4-openssl-dev \
+    libssl-dev \
+    libgtk-3-0 \
+    libxtst6 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set EiffelStudio environment
+ENV ISE_EIFFEL=/usr/local/eiffel
+ENV ISE_PLATFORM=linux-x86-64
+ENV ISE_LIBRARY=/usr/local/eiffel
+ENV PATH="${ISE_EIFFEL}/studio/spec/${ISE_PLATFORM}/bin:${PATH}"
+
+# Create SIMPLE_EIFFEL directory
+RUN mkdir -p /opt/simple_eiffel && chown runner:runner /opt/simple_eiffel
+ENV SIMPLE_EIFFEL=/opt/simple_eiffel
+
+# Verify installation
+RUN ec -version
