@@ -104,7 +104,7 @@ jobs:
           TEST_LIBS="${{ github.event.inputs.libraries }}"
         else
           # All libraries with test targets
-          TEST_LIBS="simple_testing simple_json simple_base64 simple_datetime simple_logger simple_file simple_toml simple_http simple_xml simple_yaml simple_hash simple_uuid simple_template simple_cache simple_codec simple_csv simple_decimal simple_fraction simple_markdown simple_pdf simple_regex simple_validation simple_env simple_process simple_mmap simple_system simple_watcher simple_k8s simple_docker simple_web simple_sql simple_lsp simple_jwt simple_app_api simple_service_api simple_websocket simple_smtp simple_rate_limiter simple_graph simple_math simple_mq simple_telemetry simple_scheduler simple_grpc"
+          TEST_LIBS="simple_testing simple_json simple_base64 simple_datetime simple_logger simple_file simple_toml simple_http simple_xml simple_yaml simple_hash simple_uuid simple_template simple_cache simple_codec simple_csv simple_decimal simple_fraction simple_markdown simple_pdf simple_regex simple_validation simple_env simple_process simple_mmap simple_system simple_watcher simple_k8s simple_docker simple_web simple_sql simple_lsp simple_jwt simple_websocket simple_smtp simple_rate_limiter simple_graph simple_math simple_mq simple_telemetry simple_scheduler simple_grpc"
         fi
 
         echo "=== Testing libraries: $TEST_LIBS ==="
